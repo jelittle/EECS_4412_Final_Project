@@ -1,3 +1,5 @@
 .venv
 #remove datasets
 sentiment140*
+
+/data
