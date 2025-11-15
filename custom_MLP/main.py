@@ -47,7 +47,6 @@ def train_custom_mlp(X, y):
     print(len(train_data[0]))
     model.SGD(training_data=train_data, epochs=300, mini_batch_size=10, lr=0.01, test_data=test_data)
 
-    # Add your custom training code here if needed
     
     return model
 
