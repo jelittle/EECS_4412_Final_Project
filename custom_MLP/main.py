@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from custom_mlp import network
+from custom_mlp import mlp
 
 def generate_xor_dataset(n_samples=1000, noise_std=0.1, random_seed=42):
     X_original = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
@@ -32,20 +32,14 @@ def train_baseline_mlp(X, y):
 
 def train_custom_mlp(X, y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-    model = network(layers=[2,4,1])
-    print(X_train.T.shape)
-    print(y_train.shape)
-    X_reshaped = X_train.T.reshape(2, -1, 1).transpose(1, 0, 2)  
-    y_reshaped = y_train.reshape(-1, 1, 1)  #
-    X_test_reshaped=X_test.T.reshape(2,-1,1).transpose(1,0,2)
-    y_test_reshaped=y_test.reshape(-1,1,1)
-    
-    # Convert to list of tuples
-    train_data = [(X_reshaped[i], y_reshaped[i]) for i in range(len(X_train))]
-    test_data =  [(X_test_reshaped[i], y_test_reshaped[i]) for i in range(len(X_test))]
+    model = mlp(layers=[2,4,1], epochs=300, learning_rate=0.01, batch_size=10)
+
+    model.fit(X_train, y_train, X_test, y_test)
+
     # print(train_data)
-    print(len(train_data[0]))
-    model.SGD(training_data=train_data, epochs=300, mini_batch_size=10, lr=0.01, test_data=test_data)
+    # print(len(train_data[0]))
+    # model.fit(training_data=train_data, epochs=300, batch_size=10, lr=0.01, test_data=test_data)
+    # model.fit(training_data=train_data,test_data=test_data)
 
     
     return model
