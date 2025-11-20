@@ -5,14 +5,15 @@ http://neuralnetworksanddeeplearning.com/
 currently, backprop, evaluate, and cost_derivate are directly taken from the above source
 """
 
-class network:
-    def __init__(self,layers,activation="relu",solver="adam",learning_rate=0.001,epochs=100,random_state=None):
-        self.params = {
+class mlp:
+    def __init__(self,layers,activation="relu",solver="adam",learning_rate=0.001,batch_size=32,epochs=100,random_state=None):
+        self.__params = {
             "solver": solver,
             "learning_rate": learning_rate,
             "epochs": epochs,
             "activation": activation,
-            "layers": layers
+            "layers": layers,
+            "batch_size": batch_size
         }
         if random_state is not None:
             np.random.seed(random_state)
@@ -25,6 +26,64 @@ class network:
         for b,w in zip(self.biases,self.weights):
             X = sigmoid(np.dot(w,X)+b)
         return X
+    
+    def fit(self,X, y, X_test=None, y_test=None):
+        """sets up firs tna dlast layer based on input and output data, and trains the network using SGD
+        aim to match sklearn and pyTorch conventions
+        input shape: (n_samples, n_features)
+        target shape: (n_samples,) (model only supports binary classification currently)"""
+        #-----------------make sure input makes sense
+        input_shape= X.shape
+        target_shape= y.shape
+        assert len(input_shape) ==2, "input data must be 2D array"
+        assert len(target_shape) ==1, "target data must be 1D array"
+        # assert input_shape[0] == target_shape[0], "number of samples in input and target must match"
+        
+        X_reshaped = X.T.reshape(2, -1, 1).transpose(1, 0, 2)  
+        y_reshaped = y.reshape(-1, 1, 1)  #
+        X_test_reshaped=X_test.T.reshape(2,-1,1).transpose(1,0,2)
+        y_test_reshaped=y_test.reshape(-1,1,1)
+        assert np.allclose(X_reshaped.squeeze(), X), "X_reshaped values do not match X"
+        exit(1)
+        # Convert to list of tuples
+        train_data = [(X_reshaped[i], y_reshaped[i]) for i in range(len(X))]
+        test_data =  [(X_test_reshaped[i], y_test_reshaped[i]) for i in range(len(X_test))]
+            # if test_X is not None:
+        #    assert input_shape[1] == test_X.shape[1], "number of features in train and test input must match"
+        #    assert test_y.shape[0] == test_X.shape[0], "number of samples in test input and test target must match"
+        #    test_X= test_X.reshape(test_X.shape[0], test_X.shape[1], 1)
+        #    test_y= test_y.reshape(test_y.shape[0], 1, 1)
+        # # Reshape X to (samples, features, 1)
+        # X = X.reshape(X.shape[0], X.shape[1], 1)
+        # y = y.reshape(y.shape[0], 1, 1)
+        # #-----------------end input checks
+
+        # #add nodes to input and output layers based on data
+        # n_input = input_shape[1]
+        # n_output = 1  # binary classification
+
+        # #build structure of network
+        # layers=self.__params["hidden_layers"]
+        # layers = [n_input] + layers + [n_output]
+        # # self.num_layers = len(layers)
+        # # self.weights = [np.random.randn(y,x) for x,y  in zip(layers[:-1],layers[1:])]
+
+        # # self.biases = [np.random.randn(y,1) for y in layers[1:]]
+
+
+        # #train
+        # # Pair training data as list of (x, y) tuples
+        # training_data = list(zip([x for x in X], [target for target in y]))
+        # # handle test data
+        # test_data = list(zip([x for x in test_X], [target for target in test_y])) if test_X is not None else None
+        # # Set parameters for SGD
+
+        epochs = self.__params["epochs"]
+        learning_rate = self.__params["learning_rate"]
+        batch_size = self.__params["batch_size"]
+        # Call SGD
+        self.SGD(train_data, epochs, batch_size, learning_rate, test_data)
+        self.__fit=True
     def SGD(self,training_data,epochs,mini_batch_size,lr, test_data):
         """data is list of tuples (x,y)"""
         if test_data: n_test = len(test_data)
@@ -103,28 +162,6 @@ class network:
         """Return the vector of partial derivatives \partial C_x /
         \partial a for the output activations."""
         return (output_activations-y)
-
-
-# class mlp:
-#     def __init__(self, layers,activation="relu",solver="adam",learning_rate=0.001,epochs=100,random_state=None):
-#         self.params = {
-#             "solver": solver,
-#             "learning_rate": learning_rate,
-#             "epochs": epochs,
-#             "activation": activation,
-#             "layers": layers
-#         }
-#         if random_state is not None:
-#             np.random.seed(random_state)
-
-#         self.weights = [np.random.randn(y,1) for y in layers for y in layers[1:]]
-#         print(len(self.weights))
-#         self.biases = [np.random.randn(y,1) for y in layers for y in layers[1:]]
-
-#     def fit(self, X, y):
-#         pass
-#     def predict(self, X):
-#         pass
 
 
 def sigmoid(x):
