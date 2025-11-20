@@ -5,7 +5,7 @@ import numpy as np
 We used this as a base, but most of it is rewritten from v0
 [2] Adam: a method for Stochastic Optimization, Diederik P. Kingma, Jimmy Ba, ICRL 2015
 
-
+gradient rewrite
 """
 class mlp:
     def __init__(self,layers,activation="relu",solver="adam",
