@@ -43,11 +43,12 @@ class mlpClassifier:
             z = np.dot(w, activations[-1]) + b
             zs.append(z)
             if i == num_layers - 1:
-                activation = sigmoid(z)
+                activation = softmax(z) if self.__n_classes > 1 else sigmoid(z)
             else:
                 activation = self.activation_func(z)
             activations.append(activation)
         return activations, zs
+
 
 
     
@@ -62,20 +63,37 @@ class mlpClassifier:
         assert len(input_shape) ==2, "input data must be 2D array"
         assert len(target_shape) ==1, "target data must be 1D array"
         assert input_shape[0] == target_shape[0], "number of samples in input and target must match"
+        
+        n_unique = len(np.unique(y))
+        self.__task = "binary" if n_unique == 2 else "multiclass"
+        self.__n_classes = 1 if self.__task == "binary" else n_unique
+        
+        # handle multiclassing
+        if self.__task == "multiclass":
+            y_onehot = np.zeros((y.shape[0], self.__n_classes))
+            y_onehot[np.arange(y.shape[0]), y.astype(int)] = 1
+            y = y_onehot
+            if y_test is not None:
+                y_test_onehot = np.zeros((y_test.shape[0], self.__n_classes))
+                y_test_onehot[np.arange(y_test.shape[0]), y_test.astype(int)] = 1
+                y_test = y_test_onehot
+        
+        
+        
         self.__n_features= input_shape[1]
         X = X.reshape(X.shape[0], X.shape[1], 1) 
-        y = y.reshape(y.shape[0], 1, 1)
+        y = y.reshape(y.shape[0], -1, 1)
 
         if X_test is not None:
            assert input_shape[1] == X_test.shape[1], "number of features in train and test must match"
            assert y_test.shape[0] == X_test.shape[0], "features in test input and target must match"
            X_test= X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
-           y_test= y_test.reshape(y_test.shape[0], 1, 1)
+           y_test= y_test.reshape(y_test.shape[0], -1, 1)
 
 
         #append input output layers to layers list, initialize weights and biases
         layers=self.__params["layers"]
-        layers = [X.shape[1]] + layers + [y.shape[1]]
+        layers = [X.shape[1]] + layers + [self.__n_classes]
         self.num_layers = len(layers)
          
         self.weights = [np.random.randn(y,x) for x,y  in zip(layers[:-1],layers[1:])]
@@ -101,13 +119,16 @@ class mlpClassifier:
         assert self.__fit, "model must be fit before prediction"
         input_shape= X.shape
         assert len(input_shape) ==2, "input data must be 2D array"
-        X = X.reshape(X.shape[0], X.shape[1], 1) 
-    
-        output,_ = self.__forward(X)
-        output=output[-1]
-        predictions = (output >= 0.5).astype(int).flatten()
-     
-        return predictions 
+        X = X.reshape(X.shape[0], X.shape[1], 1)
+        output, _ = self.__forward(X)
+        output = output[-1]
+        
+        if self.__n_classes == 1:
+            predictions = (output >= 0.5).astype(int).flatten()
+        else:
+            predictions = np.argmax(output, axis=0)  # argmax over classes
+        
+        return predictions
     def SGD(self, training_data, epochs, mini_batch_size, lr, test_data):
         """training_data is a tuple (X, y) of numpy arrays """
         #prep data
@@ -187,19 +208,17 @@ class mlpClassifier:
 
         return (nabla_b, nabla_w)
     def evaluate(self, test_data):
-        """Evaluate accuracy for binary classification.
-        Assumes output neuron uses sigmoid activation and threshold 0.5."""
-
-        x=test_data[0]
-
-        #feed forward then get last activation
-   
-        output,_ = self.__forward(x)
-        output=output[-1]
-
-        predictions = (output >= 0.5).astype(int).flatten()
-   
-        y=test_data[1].flatten()
+        x = test_data[0]
+        output, _ = self.__forward(x)
+        output = output[-1]
+        
+        if self.__n_classes == 1:
+            predictions = (output >= 0.5).astype(int).flatten()
+            y = test_data[1].flatten()
+        else:
+            predictions = np.argmax(output, axis=0)
+            y = np.argmax(test_data[1].squeeze(-1), axis=1)
+        
         accuracy = np.sum(predictions == y)
         return accuracy
        
@@ -227,11 +246,19 @@ def relu(x):
 
 def relu_prime(x):
     return np.where(x > 0, 1, 0)
-
+def softmax(z):
+    """Numerically stable softmax. z shape: (n_classes, batch_size)"""
+    exp_z = np.exp(z - np.max(z, axis=0, keepdims=True))
+    return exp_z / np.sum(exp_z, axis=0, keepdims=True)
+def softmax_prime(z):
+    """Softmax derivative for MSE loss"""
+    s = softmax(z)
+    return s * (1 - s)  # simplified diagonal approximation
 
 activation_derivatives = {
     sigmoid: sigmoid_prime,
     relu: relu_prime,
+    softmax: softmax_prime,
 }
 
 def activation_prime(x, func):

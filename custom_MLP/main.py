@@ -102,7 +102,7 @@ def mlp_performance_tests(X,y):
     models = {
         "mlp_v1": mlp_v1(layers=[4], epochs=300, learning_rate=0.01, batch_size=10),
         "mlp_v2": mlp_v2(hidden_layers=[4], epochs=300, learning_rate=0.01, batch_size=10),
-        # Add more models here if needed
+     
     }
     results = {}
     for name, model in models.items():
