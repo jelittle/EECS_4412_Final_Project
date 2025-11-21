@@ -267,7 +267,6 @@ class mlpClassifier:
         
         predictions = self.predict(x)
         
-        # ✅ Simplified: Handle all cases
         if y.ndim > 1:  # One-hot encoded or has extra dimensions
             if y.shape[-1] > 1:  # One-hot
                 y = np.argmax(y.reshape(-1, y.shape[-1]), axis=1)
@@ -292,6 +291,9 @@ def get_activation_func( name):
     assert name in activation_funcs, f"Unsupported activation function: {name}"
     return activation_funcs[name]
 
+
+
+# Activation functions and their derivatives
 def sigmoid(x):
     x = np.clip(x, -500, 500) #was having overflow issues
     return 1 / (1 + np.exp(-x))

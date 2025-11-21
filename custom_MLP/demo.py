@@ -20,8 +20,7 @@ def runner(configs):
     model, sk_mlp=build_mlp()
     data_path = configs.get("data_path")
     data = pd.read_csv(data_path)
-    # Parse the "embeddings" column from string to list
-    # data['embeddings'] = data['embeddings'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
+
     print("parsing embeddings...")
     if isinstance(data['embeddings'].iloc[0], str):
         # Remove brackets and split
