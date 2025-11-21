@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score
 from custom_mlp import mlpClassifier as mlp
 from mlp_archives.mlp_v1 import mlp as mlp_v1
 from mlp_archives.mlp_v2 import mlp as mlp_v2
+from mlp_archives.mlp_v3 import mlpClassifier as mlp_v3
 import time
 import psutil
 
@@ -100,8 +101,10 @@ def mlp_performance_tests(X,y):
     
 
     models = {
-        "mlp_v1": mlp_v1(layers=[4], epochs=300, learning_rate=0.01, batch_size=10),
-        "mlp_v2": mlp_v2(hidden_layers=[4], epochs=300, learning_rate=0.01, batch_size=10),
+        "mlp_v1": mlp_v1(layers=[4], epochs=300, activation="sigmoid",learning_rate=0.01, batch_size=10),
+        "mlp_v2": mlp_v2(layers=[4], epochs=300,activation="sigmoid", learning_rate=0.01, batch_size=10),
+        "mlp_v3": mlp_v3(layers=[4], epochs=300,activation="relu", learning_rate=0.01, batch_size=10, verbose=False),
+        "custom_mlp": mlp(layers=[4], epochs=300,activation="relu", learning_rate=0.01, batch_size=10, verbose=False),
      
     }
     results = {}
@@ -110,7 +113,7 @@ def mlp_performance_tests(X,y):
         _,tim,mem=track_performance(model.fit, X_train, y_train,X_val, y_val)
         preds = model.predict(X_test)
         acc = accuracy_score(y_test, preds)
-        results[name] = acc, time, mem
+        results[name] = acc, tim, mem
 
 
     for name, acc in results.items():
@@ -124,4 +127,5 @@ if __name__ == "__main__":
     X, y = generate_mnist_binary_dataset(digits=[3,8], n_samples=5000)
     print(X.shape)
     # baseline_model = train_baseline_mlp(X, y)
-    custom_model = train_custom_mlp(X, y)
+    mlp_performance_tests(X, y)
+    # custom_model = train_custom_mlp(X, y)
