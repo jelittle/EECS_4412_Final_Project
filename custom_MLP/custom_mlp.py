@@ -173,28 +173,29 @@ class mlpClassifier:
                 assert X_batch.ndim == 2 and y_batch.ndim == 2 
       
                 self.update_mini_batch(X_batch,y_batch, lr)
-            if self.__params["verbose"]:
-       
-                # training time evaluation
-                if test_data:
-                    n_test = test_data[0].shape[0]
-                    results=self.__evaluate(test_data)
-                    if results > self.best_val_results:
-                        self.best_val_results= results
-                        self._best_weights= self.weights
-                        self._best_biases= self.biases
-                        self.time_since_best=0
-                    else:
-                        self.time_since_best +=1
-                        if self.time_since_best >=self.__params["patience"]:
-                            print("Early stopping due to no improvement in validation accuracy for 10 epochs")
-                            self.weights= self._best_weights
-                            self.biases= self._best_biases
-                            return
-             
+            
+    
+            # training time evaluation
+            if test_data:
+                n_test = test_data[0].shape[0]
+                results=self.__evaluate(test_data)
+                if results > self.best_val_results:
+                    self.best_val_results= results
+                    self._best_weights= self.weights
+                    self._best_biases= self.biases
+                    self.time_since_best=0
+                else:
+                    self.time_since_best +=1
+                    if self.time_since_best >=self.__params["patience"]:
+                        print("Early stopping due to no improvement in validation accuracy for 10 epochs")
+                        self.weights= self._best_weights
+                        self.biases= self._best_biases
+                        return
+                if self.__params["verbose"]:
                     print(f"Epoch{j}: {results}/{n_test}({(results/n_test)*100:.2f}%)")
 
-                else:
+            else:
+                if self.__params["verbose"]:
                     print(f"Epoch{j} complete")
     def update_mini_batch(self,X,y,lr):
         """compute gradient for each example in mini batch and update weights and biases"""
@@ -267,7 +268,6 @@ class mlpClassifier:
         
         predictions = self.predict(x)
         
-        # ✅ Simplified: Handle all cases
         if y.ndim > 1:  # One-hot encoded or has extra dimensions
             if y.shape[-1] > 1:  # One-hot
                 y = np.argmax(y.reshape(-1, y.shape[-1]), axis=1)
@@ -292,6 +292,9 @@ def get_activation_func( name):
     assert name in activation_funcs, f"Unsupported activation function: {name}"
     return activation_funcs[name]
 
+
+
+# Activation functions and their derivatives
 def sigmoid(x):
     x = np.clip(x, -500, 500) #was having overflow issues
     return 1 / (1 + np.exp(-x))
