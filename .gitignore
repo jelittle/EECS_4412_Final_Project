@@ -4,3 +4,4 @@ sentiment140*
 
 /data
 .DS_Store
+custom_MLP_copy/
