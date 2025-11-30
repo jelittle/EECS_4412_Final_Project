@@ -1,0 +1,59 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from custom_mlp import mlpClassifier as mlp
+CONFIGS = {
+    "data_path": "../project_data/t4sa_data.csv",  # path to the csv with embeddings
+}
+
+def build_models():
+    # Custom MLP (use the same value for instance)
+    custom_mlp = mlp(
+        layers=[256, 128, 32],
+        epochs=150,
+        activation="relu",
+        learning_rate=0.01,
+        batch_size=128,
+        verbose=True,
+        patience=10
+    )
+    # Scikit-learn SVM
+    sk_svm = SVC(kernel='rbf', C=1.0, gamma='scale', probability=True, random_state=42)
+    return custom_mlp, sk_svm
+
+def runner(configs):
+    custom_mlp, sk_svm = build_models()
+    data = pd.read_csv(configs["data_path"])
+
+    print("Parsing embeddings...")
+    if isinstance(data['embeddings'].iloc[0], str):
+        data['embeddings'] = data['embeddings'].str.strip('[]').str.split(',').apply(
+            lambda x: np.array([float(i) for i in x])
+        )
+
+    X, y = np.stack(data['embeddings'].values), data['class']
+    # encode the class labels
+    y_unique = {label: idx for idx, label in enumerate(sorted(y.unique()))}
+    y = y.map(y_unique).values
+
+    # train-test split
+    X_temp, X_test, y_temp, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_temp, y_temp, test_size=0.25, random_state=42, stratify=y_temp
+    )
+
+    # train the custom MLP
+    custom_mlp.fit(X_train, y_train, X_val, y_val)
+    acc_mlp = custom_mlp.evaluate((X_test, y_test))
+    print(f"Custom MLP Test Accuracy: {acc_mlp:.4f}")
+
+    # train the scikit-learn SVM
+    sk_svm.fit(X_train, y_train)
+    acc_svm = sk_svm.score(X_test, y_test)
+    print(f"Scikit-learn SVM Test Accuracy: {acc_svm:.4f}")
+
+if __name__ == "__main__":
+    runner(CONFIGS)
