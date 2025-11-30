@@ -9,6 +9,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Create folder `project_data`
+```
+mkdir project_data
+```
+
 Run `./custom_MLP/prep.ipynb` to create `../project_data/t4sa_data.csv`
 
 ## Demo 
