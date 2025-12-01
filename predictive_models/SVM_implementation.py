@@ -1,9 +1,23 @@
+# to fix importing problem https://stackoverflow.com/questions/54598292/modulenotfounderror-when-trying-to-import-module-from-imported-package
+import sys
+import os
+myDir = os.getcwd()
+sys.path.append(myDir)
+
+from pathlib import Path
+path = Path(myDir)
+a=str(path.parent.absolute())
+
+sys.path.append(a)
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from ../custom_MLP/custom_mlp import mlpClassifier as mlp
+# from ../custom_MLP/custom_mlp import mlpClassifier as mlp
+# from custom_MLP.custom_mlp import mlpClassifier as mlp
+from custom_MLP.custom_mlp import mlpClassifier as mlp
 
 CONFIGS = {
     "data_path": "../project_data/t4sa_data.csv",  # path to the csv with embeddings
