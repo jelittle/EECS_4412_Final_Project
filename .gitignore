@@ -3,7 +3,7 @@ venv/
 env/
 #remove datasets
 sentiment140*
-
+project_data/dbert_ready_data.csv
 /data
 .DS_Store
 .ipynb_checkpoints/
