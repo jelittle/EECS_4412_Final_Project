@@ -1,6 +1,11 @@
-venv
+.venv/
+venv/
+env/
 #remove datasets
 sentiment140*
 
 /data
 .DS_Store
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
