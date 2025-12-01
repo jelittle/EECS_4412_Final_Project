@@ -4,6 +4,7 @@ env/
 #remove datasets
 sentiment140*
 project_data/dbert_ready_data.csv
+project_data/distilbert_model/
 /data
 .DS_Store
 .ipynb_checkpoints/
