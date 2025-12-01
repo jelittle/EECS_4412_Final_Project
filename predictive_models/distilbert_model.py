@@ -102,7 +102,7 @@ print("Using device:", model.device)
 
 
 training_args = TrainingArguments(
-    output_dir="../project_data/distilbert_model",
+    output_dir="project_data/distilbert_model",
     eval_strategy="epoch",
     save_strategy="epoch",
     logging_steps=200,
@@ -145,7 +145,7 @@ trainer = Trainer(
 trainer.train()
 
 # Save final model
-trainer.save_model("../project_data/distilbert_model")
+trainer.save_model("project_data/distilbert_model")
 
 
 # 9. Evaluate on Test Set
