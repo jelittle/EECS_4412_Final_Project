@@ -33,7 +33,7 @@ label_encoder = LabelEncoder()
 df["label"] = label_encoder.fit_transform(df["class"])
 
 
-# 3. Train / Val / Test split (same as your other model)
+# 3. Train / Val / Test split (same as other model)
 
 
 X = df["text"].tolist()
