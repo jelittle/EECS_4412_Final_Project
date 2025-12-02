@@ -11,3 +11,4 @@ custom_MLP_copy/
 .ipynb_checkpoints/
 __pycache__/
 *.pyc
+project_data/*
