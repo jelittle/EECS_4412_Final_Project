@@ -14,11 +14,6 @@ from transformers import (
 )
 from datasets import Dataset, DatasetDict
 
-print("\n========= GPU STATUS =========")
-print("CUDA available:", torch.cuda.is_available())
-if torch.cuda.is_available():
-    print("GPU being used:", torch.cuda.get_device_name(0))
-print("================================\n")
 # 1. Load dataset
 
 DATA_PATH = "project_data/dbert_ready_data.csv"
@@ -96,7 +91,7 @@ model = DistilBertForSequenceClassification.from_pretrained(
     "distilbert-base-uncased",
     num_labels=3
 )
-print("Using device:", model.device)
+
 
 # 6. Training Arguments
 
