@@ -1,7 +1,13 @@
-venv
+.venv/
+venv/
+env/
 #remove datasets
 sentiment140*
-
+project_data/dbert_ready_data.csv
+project_data/distilbert_model/
 /data
 .DS_Store
 custom_MLP_copy/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
